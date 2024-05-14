@@ -486,6 +486,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        return search.bfs(gameState)
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
