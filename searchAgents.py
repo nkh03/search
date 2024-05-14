@@ -387,7 +387,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
     
     "*** YOUR CODE HERE ***"
     def distanceArgmin(pos, points):
