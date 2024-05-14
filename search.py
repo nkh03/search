@@ -97,7 +97,7 @@ def breadthFirstSearch(problem: SearchProblem):
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    startNode=SearchProblem.getStartState()
+    startNode=problem.getStartState()
     if problem.isGoalState(startNode):
         return []
     checkedNodes=[]
