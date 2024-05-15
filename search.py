@@ -91,8 +91,23 @@ def depthFirstSearch(problem: SearchProblem):
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # "*** YOUR CODE HERE ***"
+    # util.raiseNotDefined()
+    visited = []
+    queue = util.Queue()
+    queue.push((problem.getStartState(), []))
+    
+    while not queue.isEmpty():
+        current, path = queue.pop()
+        if current in visited:
+            continue
+        visited.append(current)
+        if problem.isGoalState(current):
+            return path
+        for nearby in problem.getSuccessors(current):
+            queue.push((nearby[0], path + [nearby[1]]))
+
+    return []
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
@@ -124,8 +139,22 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # "*** YOUR CODE HERE ***"
+    # util.raiseNotDefined()
+    visited = []
+    priority_queue = util.PriorityQueue()
+    priority_queue.push((problem.getStartState(), []), 0)
+
+    while not priority_queue.isEmpty():
+        current, path = priority_queue.pop()
+        if current in visited:
+            continue
+        visited.append(current)
+        if problem.isGoalState(current):
+            return path
+        for nearby in problem.getSuccessors(current):
+            priority_queue.push((nearby[0], path + [nearby[1]]), problem.getCostOfActions(path + [nearby[1]]) + heuristic(nearby[0], problem)) 
+    return []
 
 
 # Abbreviations

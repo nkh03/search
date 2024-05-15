@@ -295,15 +295,17 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        """*** YOUR CODE HERE ***"""
+        return (self.startingPosition, (False, False, False, False))
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        """*** YOUR CODE HERE ***"""
+        return state[1] == (True, True, True, True)
+
+        # util.raiseNotDefined()
 
     def getSuccessors(self, state: Any):
         """
@@ -325,9 +327,18 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
-
-        self._expanded += 1 # DO NOT CHANGE
+            """*** YOUR CODE HERE ***"""
+             # Extract the current position and visited corners from the state
+            x, y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextPosition = (nextx, nexty)
+                cornersVisited = list(state[1])
+                if nextPosition in self.corners:
+                    index = self.corners.index(nextPosition)
+                    cornersVisited[index] = True
+                successors.append(((nextPosition, tuple(cornersVisited)), action, 1))
         return successors
 
     def getCostOfActions(self, actions):
@@ -360,8 +371,19 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    currentPosition, visitedCorners = state
+
+    unvisitedCorners = [corners[i] for i in range(len(corners)) if not visitedCorners[i]]
+    heuristicCost = 0
+
+    while unvisitedCorners:
+        distances = [(util.manhattanDistance(currentPosition, corner), corner) for corner in unvisitedCorners]
+        distance, closestCorner = min(distances)
+        heuristicCost += distance
+        currentPosition = closestCorner
+        unvisitedCorners.remove(closestCorner)
+
+    return heuristicCost
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -454,8 +476,16 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodList = foodGrid.asList()
+    # Start with zero heuristic value
+    heuristic = 0
+
+    # Use a simple heuristic such as the Manhattan distance to the closest food
+    if foodList:
+        distances = [util.manhattanDistance(position, food) for food in foodList]
+        heuristic = min(distances)  # Closest food distance
+
+    return heuristic
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
