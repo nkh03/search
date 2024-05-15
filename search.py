@@ -67,11 +67,7 @@ def tinyMazeSearch(problem):
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
     sequence of moves will be incorrect, so only use this for tinyMaze.
     """
-    from game import Directions
-    s = Directions.SOUTH
-    w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
-
+   
 def depthFirstSearch(problem: SearchProblem):
     """
     Search the deepest nodes in the search tree first.
@@ -139,22 +135,25 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    # "*** YOUR CODE HERE ***"
-    # util.raiseNotDefined()
-    visited = []
-    priority_queue = util.PriorityQueue()
-    priority_queue.push((problem.getStartState(), []), 0)
 
+    "*** YOUR CODE HERE ***"
+    visited = []
+    startNode = problem.getStartState()
+    priority_queue = util.PriorityQueue()
+    priority_queue.push((startNode, [], 0), 0)
     while not priority_queue.isEmpty():
-        current, path = priority_queue.pop()
-        if current in visited:
-            continue
-        visited.append(current)
-        if problem.isGoalState(current):
-            return path
-        for nearby in problem.getSuccessors(current):
-            priority_queue.push((nearby[0], path + [nearby[1]]), problem.getCostOfActions(path + [nearby[1]]) + heuristic(nearby[0], problem)) 
-    return []
+        node, act_history, cost = priority_queue.pop()
+        if node not in visited:
+            visited.append(node)
+            if problem.isGoalState(node):
+                return act_history
+            for neighbor, act_future, cost_future in problem.getSuccessors(node):
+                act_next = act_history + [act_future]
+                cost_next = cost + cost_future
+                priority = cost_next + heuristic(neighbor, problem)
+                priority_queue.push((neighbor, act_next, cost_next), priority)
+                
+    util.raiseNotDefined()
 
 
 # Abbreviations

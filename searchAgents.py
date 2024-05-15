@@ -296,30 +296,23 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
+
+
         "*** YOUR CODE HERE ***"
         start = self.startingPosition
-        corners = tuple()
-        startState = (start, corners)
-        return startState
+        corners = self.corners
+        # return start and corners's position
+        return (start, corners)
+
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        visited_corners = state[1]
-        arr = list(visited_corners)
+        return len(visited_corners) == 0
+        util.raiseNotDefined()
 
-        if state[0] in self.corners:
-            if state[0] not in arr:
-                arr.append(state[0])
-
-        visited_corners = tuple(arr)
-
-        if len(visited_corners) == 4:
-            return True
-        else:
-            return False
 
     def getSuccessors(self, state: Any):
         """
@@ -342,24 +335,28 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x = state[0][0]
-            y = state[0][1]
-            corner_list = state[1]
+            # current coordinate
+            x, y = state[0]
+            # direction
             dx, dy = Actions.directionToVector(action)
-            next_x, next_y = int(x + dx), int(y + dy)
-            hit_wall = self.walls[next_x][next_y]
-            
-            if not hit_wall:
-                visited_corners = list(corner_list)
-                new_node = (next_x, next_y)
-
-                if new_node in self.corners:
-                    if new_node not in visited_corners:
-                        visited_corners.append(new_node)
-                
-                corner_list = tuple(visited_corners)
-                s = ((new_node, corner_list), action, 1)
-                successors.append(s)
+            # next coordinate
+            nextx, nexty = int(x + dx), int(y + dy)
+            # check if the next coordinate is a wall
+            hitsWall = self.walls[nextx][nexty]
+            # if not a wall
+            if not hitsWall:
+                # get the corners
+                corners = state[1]
+                # check if the next coordinate is a corner
+                if (nextx, nexty) in corners:
+                    # remove the corner from the list
+                    new_corners = list(corners)
+                    new_corners.remove((nextx, nexty))
+                    # add the successor to the list
+                    successors.append((((nextx, nexty), tuple(new_corners)), action, 1))
+                else:
+                    # add the successor to the list
+                    successors.append((((nextx, nexty), corners), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -393,18 +390,28 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-
+    
     "*** YOUR CODE HERE ***"
-    result, new_dist = 0, 0
+    def distanceArgmin(pos, points):
+        index, minDist = None, 1e9
+        for curIdx, curPoint in enumerate(points):
+            curDist = util.manhattanDistance(pos, curPoint)
+            # curDist = mazeDistance(pos, curPoint, problem.startingGameState)
+            if curDist < minDist:
+                index, minDist = curIdx, curDist
+        return index, minDist
 
-    for c in corners:
-        if c not in state[1]:
-            new_dist = mazeDistance(state[0], c, problem.gameState)
-
-            if new_dist > result:
-                result = new_dist
-
-    return result
+    def optimalPathWithoutWalls(fromPos, throughPoints):
+        points = list(throughPoints)
+        # print(points)
+        pos, pathLength = fromPos, 0
+        while points != []:
+            index, dist = distanceArgmin(pos, points)
+            pathLength += dist
+            pos = points[index]
+            points.pop(index)
+        return pathLength
+    return optimalPathWithoutWalls(*state)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -595,3 +602,5 @@ def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pa
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
     return len(search.bfs(prob))
+
+
