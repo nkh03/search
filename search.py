@@ -67,8 +67,12 @@ def tinyMazeSearch(problem):
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
     sequence of moves will be incorrect, so only use this for tinyMaze.
     """
-   
-def depthFirstSearch(problem: SearchProblem):
+    from game import Directions
+    s = Directions.SOUTH
+    w = Directions.WEST
+    return  [s, s, w, s, w, w, s, w]
+
+def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -83,48 +87,102 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
-def breadthFirstSearch(problem: SearchProblem):
+    # define a stack for open list
+    open_stack = util.Stack()
+    # initialize open stack with start position
+    open_stack.push((problem.getStartState(),'origin',0))
+    # define a stack for closed list
+    closed_stack = util.Stack()
+    backtrack_checkpoints = util.Stack()
+    visited_list = []
+
+    while not open_stack.isEmpty():
+
+        X = open_stack.pop()
+        visited_list.append(X[0])
+        if problem.isGoalState(X[0]):
+            closed_stack.push(X)
+            break
+        else:
+            # generate successors of X
+            children_of_X = problem.getSuccessors(X[0])
+            # push X on closed stack
+            closed_stack.push(X)
+            alreadyVisitedChildren = 0
+            for each_child in children_of_X:
+                if (each_child[0] in visited_list):
+                    alreadyVisitedChildren +=1
+                else:
+                    open_stack.push(each_child)
+
+            if (len(children_of_X) - alreadyVisitedChildren) > 1:
+                backtrack_checkpoints.push(X)
+                if len(children_of_X) == 4:
+                    backtrack_checkpoints.push(X)
+
+            if alreadyVisitedChildren == len(children_of_X):
+                return_point = backtrack_checkpoints.pop()
+                temp_point = closed_stack.pop()
+                while return_point[0] != temp_point[0]:
+                    temp_point = closed_stack.pop()
+                closed_stack.push(temp_point)
+    actions = []
+    while not closed_stack.isEmpty():
+        dir = closed_stack.pop()[1]
+        if dir!='origin':
+                actions.append(dir)
+    #util.raiseNotDefined()
+    actions.reverse()
+    return actions
+
+def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    # "*** YOUR CODE HERE ***"
-    # util.raiseNotDefined()
-    visited = []
-    queue = util.Queue()
-    queue.push((problem.getStartState(), []))
-    
-    while not queue.isEmpty():
-        current, path = queue.pop()
-        if current in visited:
-            continue
-        visited.append(current)
-        if problem.isGoalState(current):
-            return path
-        for nearby in problem.getSuccessors(current):
-            queue.push((nearby[0], path + [nearby[1]]))
+    # define a queue for open list
+    open_queue = util.Queue()
+    # initialize open stack with start position
+    open_queue.push((problem.getStartState(), []))
+    visited_list = []
 
+    while not open_queue.isEmpty():
+        X, actions = open_queue.pop()
+        if X not in visited_list:
+            visited_list.append(X)
+            if problem.isGoalState(X):
+                return actions
+            else:
+                # generate successors of X
+                    children_of_X = problem.getSuccessors(X)
+
+                    for each_child in children_of_X:
+                            open_queue.push((each_child[0], actions + [each_child[1]]))
     return []
 
-def uniformCostSearch(problem: SearchProblem):
+def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    startNode=problem.getStartState()
-    if problem.isGoalState(startNode):
-        return []
-    checkedNodes=[]
-    priority_queue=util.PriorityQueue()
-    priority_queue.push((startNode,[],0),0)
-    while not priority_queue.isEmpty():
-        node_tmp,act_history,cost_tmp=priority_queue.pop()
-        if node_tmp not in checkedNodes:
-            checkedNodes.append(node_tmp)
-            if problem.isGoalState(node_tmp):
-                return act_history
-            for node_future,act_future,cost_future in problem.getSuccessors(node_tmp):
-                act_next=act_history+[act_future]
-                priority=cost_tmp+cost_future
-                priority_queue.push((node_future,act_next,priority),priority)
-    util.raiseNotDefined()
+    # define a queue for open list
+    open_queue = util.PriorityQueue()
+    # initialize open stack with start position
+    open_queue.push((problem.getStartState(), [], 0), 0)
+    visited_set = set()
+    closed_list = []
+    while not open_queue.isEmpty():
+        X, actions, cost = open_queue.pop()
+        visited_set.add(X)
+        if problem.isGoalState(X):
+            return actions
+        else:
+            # generate successors of X
+            if (X not in closed_list):
+                children_of_X = problem.getSuccessors(X)
+                closed_list.append(X)
+
+                for each_child in children_of_X:
+                    if (each_child[0] in visited_set):
+                        pass
+                    else:
+                        open_queue.update((each_child[0], actions + [each_child[1]], each_child[2] + cost), each_child[2] + cost)
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -133,27 +191,33 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
+def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
+    # define a stack for open list
+    open_queue = util.PriorityQueue()
+    # initialize open stack with start position
+    open_queue.push((problem.getStartState(), [], 0), 0)
+    visited_set = []
+    closed_list = []
+    while not open_queue.isEmpty():
+        X, actions, cost = open_queue.pop()
+        visited_set.append(X)
+        if problem.isGoalState(X):
+            return actions
+        else:
+            # generate successors of X
+            if (X not in closed_list):
+                children_of_X = problem.getSuccessors(X)
+                closed_list.append(X)
 
-    "*** YOUR CODE HERE ***"
-    visited = []
-    startNode = problem.getStartState()
-    priority_queue = util.PriorityQueue()
-    priority_queue.push((startNode, [], 0), 0)
-    while not priority_queue.isEmpty():
-        node, act_history, cost = priority_queue.pop()
-        if node not in visited:
-            visited.append(node)
-            if problem.isGoalState(node):
-                return act_history
-            for neighbor, act_future, cost_future in problem.getSuccessors(node):
-                act_next = act_history + [act_future]
-                cost_next = cost + cost_future
-                priority = cost_next + heuristic(neighbor, problem)
-                priority_queue.push((neighbor, act_next, cost_next), priority)
-                
-    util.raiseNotDefined()
+                for each_child in children_of_X:
+                    if (each_child[0] in visited_set):
+                        pass
+                    else:
+                        heuristic_value = heuristic(each_child[0],problem)
+                        open_queue.update((each_child[0], actions + [each_child[1]], each_child[2] + cost),
+                                          each_child[2] + cost + heuristic_value)
+    return []
 
 
 # Abbreviations
