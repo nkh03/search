@@ -289,6 +289,7 @@ class CornersProblem(search.SearchProblem):
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
+        self.gameState = startingGameState
 
     def getStartState(self):
         """
@@ -296,18 +297,19 @@ class CornersProblem(search.SearchProblem):
         space)
         """
 
+
         "*** YOUR CODE HERE ***"
         start = self.startingPosition
         corners = self.corners
         # return start and corners's position
         return (start, corners)
 
+
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        visited_corners = state[1]
         return len(visited_corners) == 0
         util.raiseNotDefined()
 
@@ -411,7 +413,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
         return pathLength
     return optimalPathWithoutWalls(*state)
 
-
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
     def __init__(self):
@@ -431,8 +432,9 @@ class FoodSearchProblem:
         self.start = (startingGameState.getPacmanPosition(), startingGameState.getFood())
         self.walls = startingGameState.getWalls()
         self.startingGameState = startingGameState
-        self._expanded = 0 # DO NOT CHANGE
-        self.heuristicInfo = {} # A dictionary for the heuristic to store information
+        self._expanded = 0
+        self.heuristicInfo = {}
+        self.gameState = startingGameState
 
     def getStartState(self):
         return self.start
@@ -503,16 +505,15 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    foodList = foodGrid.asList()
-    # Start with zero heuristic value
-    heuristic = 0
+    "*** YOUR CODE HERE ***"
+    heur, result, new_dist = 0, 0, 0
+    for f in foodGrid.asList():
+        new_dist = mazeDistance(state[0], f, problem.gameState)
 
-    # Use a simple heuristic such as the Manhattan distance to the closest food
-    if foodList:
-        distances = [util.manhattanDistance(position, food) for food in foodList]
-        heuristic = min(distances)  # Closest food distance
+        if new_dist > result:
+            result = new_dist
 
-    return heuristic
+    return result
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -543,8 +544,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        return search.bfs(problem)
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -580,8 +580,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        return self.food[x][y]
-        util.raiseNotDefined()
+        if state in self.food.asList():
+            return True
+        else:
+            return False
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
