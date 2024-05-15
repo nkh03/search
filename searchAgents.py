@@ -295,6 +295,7 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
+
         "*** YOUR CODE HERE ***"
         start = self.startingPosition
         corners = self.corners
@@ -309,6 +310,7 @@ class CornersProblem(search.SearchProblem):
         visited_corners = state[1]
         return len(visited_corners) == 0
         util.raiseNotDefined()
+
 
     def getSuccessors(self, state: Any):
         """
@@ -386,7 +388,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-
     
     "*** YOUR CODE HERE ***"
     def distanceArgmin(pos, points):
@@ -502,8 +503,16 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodList = foodGrid.asList()
+    # Start with zero heuristic value
+    heuristic = 0
+
+    # Use a simple heuristic such as the Manhattan distance to the closest food
+    if foodList:
+        distances = [util.manhattanDistance(position, food) for food in foodList]
+        heuristic = min(distances)  # Closest food distance
+
+    return heuristic
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

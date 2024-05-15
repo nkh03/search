@@ -87,8 +87,23 @@ def depthFirstSearch(problem: SearchProblem):
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # "*** YOUR CODE HERE ***"
+    # util.raiseNotDefined()
+    visited = []
+    queue = util.Queue()
+    queue.push((problem.getStartState(), []))
+    
+    while not queue.isEmpty():
+        current, path = queue.pop()
+        if current in visited:
+            continue
+        visited.append(current)
+        if problem.isGoalState(current):
+            return path
+        for nearby in problem.getSuccessors(current):
+            queue.push((nearby[0], path + [nearby[1]]))
+
+    return []
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
@@ -120,6 +135,7 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
+
     "*** YOUR CODE HERE ***"
     visited = []
     startNode = problem.getStartState()
@@ -138,6 +154,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
                 priority_queue.push((neighbor, act_next, cost_next), priority)
                 
     util.raiseNotDefined()
+
 
 # Abbreviations
 bfs = breadthFirstSearch
